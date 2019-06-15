@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link href="https://fonts.googleapis.com/css?family=Oswald&display=swap" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/6.1.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/6.1.1/firebase-database.js"></script>
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3pro.css">
+    <link id="fontawesome" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <title>Teacher Dashboard</title>
+    <style>
+        :root{
+            --clr1:#f30;
+            --bg1:#0F111A;
+            --bg2:#ddd;
+            --bg3:#000;
+            --bg4:#090b10;
+        }
+        hr{
+            opacity:.3;
+        }
+        html,body{
+            height:100%;width:100%;
+            margin:0px;padding:0px;
+            background-color:var(--bg2);
+            font-family: 'Oswald', sans-serif;
+        }
+        @media print{
+            body{
+                transform:scale(1);
+                font-size:20pt;
+                padding:50px 100px;
+                background-color:#fff;
+            }
+        }
+        button{
+            border:none;
+            padding:5px 10px;
+            cursor: pointer;
+        }
+        .shadow{
+            box-shadow: 7px 0px 6px -6px #000;
+        }
+        .shadow2{
+            box-shadow: 7px 10px 6px -6px #000;
+        }
+        .navigation-bar{
+            position:fixed;
+            height:100%;
+            width:330px;
+            background-color:var(--bg1);
+            text-align:left;
+        }
+        .navigation-bar > button{
+            display:block;
+            text-align:left;
+            width:100%;
+            font-size: 11pt;
+            font-weight:bold;
+            padding:15px 20px;
+            background:transparent;
+            color:#999;
+            outline:none;
+        }
+        .navigation-bar > button:nth-child(2){
+            background-color:transparent;
+            color:#fff;
+        }
+        .dashboard-container{
+            display:flex;
+        }
+        .dashboard-container > .navigation-placeholder{
+            width:330px;
+        }
+        .dashboard-container > .dashboard-content-container{
+            flex:1;
+        }
+        .dashboard-container > .dashboard-content-container > .dashboard-content-nav{
+            background-color:var(--bg3);
+            padding:10px;
+            box-sizing: border-box;
+            width:100%;
+        }
+        .dashboard-content{
+            padding:50px;
+        }
+        .dashboard-tile{
+            background-color:#fff;
+            box-shadow: 7px 10px 6px -6px #000;
+        }
+        .dashboard-tile-content{
+            padding:30px;
+        }
+
+        .dashboard-button{
+            background-color:#09f !important;
+            color:#fff !important;
+            font-weight:bold;
+            font-size:19pt !important;
+        }
+        .modal{
+            position:fixed;
+            top:0;left:0;bottom:0;right:0;
+            margin:auto;
+            display:inline-block;
+            width:50%;
+            top:-1500px;
+            height:400px;
+            background-color:var(--bg4);
+            padding:40px 50px 40px 100px;
+            color:#ddd;
+            transition:all .5s ease;
+        }
+        .modal.show{
+            top:15px;
+            transition:all .5s ease;
+        }
+        input{
+            display:block;
+            /* height:20px; */
+            width:100%;
+            padding:5px 7px !important;
+            box-sizing: border-box;
+        }
+        select{
+            display:block;
+            width:100%;
+            padding:5px 7px;
+        }
+        button{
+            width:100%;
+            background-color:#f30;
+            color:#fff;
+            font-weight:bold;
+            font-size:15pt;
+        }
+        .tile-buttons-container button{
+            background-color:#09f;color:#fff;
+            padding:5px 20px;
+            font-size:12pt;
+            font-weight:bold;
+            margin-right:10px;
+        }
+        table {
+            border-collapse: collapse;
+        }
+
+        table, th, td {
+            border: 1px solid black;
+        }
+        .result-table td,.result-table th{
+            padding:5px 15px;
+        }
+        .result-table th{
+            background-color:#ddd;
+        }
+        .result-table td:first-child{
+            font-weight:bold;
+        }
+        .past-reports{
+            padding:30px;
+            margin-bottom:20px;
+        }
+
+    </style>
+</head>
+<body>
+    <nav class="navigation-bar shadow">
+        <button class="dashboard-button"><span class="fa fa-user-circle"></span> Teacher Dashboard</button>
+        <button>Update Lecture Progress</button>
+        <button>View Quizz Results</button>
+        <button>About</button>
+    </nav>
+    <div class="dashboard-container">
+        <div class="navigation-placeholder"></div>
+        <div class="dashboard-content-container">
+            <div class="dashboard-content">
+                <div class="dashboard-tile" style="padding:50px 50px;background-color:var(--bg1);color:#fff;">
+                    <label for="lecturetitle">Lecture Title:</label>
+                    <input id="lecturetitle" name="teachername" type="text"><br>
+                    <label for="pathology">Tags <small>(comma separated values)</small></label>
+                    <input id="username" name="username" type="text"><br>
+                    <label for="quizz"><big style="font-size:19pt;">Quizz</big></label><br><br>
+                    <div class="w3-row">
+                        <div class="w3-twothird"><b>Question</b></div>
+                        <div class="w3-third"><b>Correct Answer</b></div>
+                    </div>
+                    <div class="quiz-create-rows">
+                        <div class="w3-row">
+                            <div class="w3-twothird">1.&nbsp; &nbsp; <input id="quizz" style="width:90%;display:inline-block;" type="text"></div>
+                            <div class="w3-third"><input type="text"></div>
+                        </div>
+                    </div>
+                    <div style="text-align:left;padding-top:10px;">
+                        <button style="background-color:#f30;width:auto;padding:5px 20px;font-size:12pt;" onclick="microscopeMotorHandler()"><span class="fa fa-plus"></span> Add question</button><br>
+                    </div>
+                    <br>
+                    <button style="background-color:#09f;" onclick="updateProgress()">Update Progress</button><br><br>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+    var config = {
+        apiKey: "AIzaSyDoznUY43-lKeZ30YQrx_eStW4RHg6JSh4",
+        authDomain: "link-referral.firebaseapp.com",
+        databaseURL: "https://link-referral.firebaseio.com",
+        storageBucket: "link-referral.appspot.com"
+    };
+    firebase.initializeApp(config);
+
+    function updateProgress(){
+        let lectureTitle = document.getElementById('lecturetitle').value.toLowerCase().replace(/ /g,'');
+        firebase.database().ref('lecture/' + document.getElementById('lecturetitle').value.toLowerCase().replace(/ /g,''))
+            .set({
+                lectureTitle:lectureTitle,
+                tags:'python,web'
+            })
+    }
+    </script>
+</body>
+</html>

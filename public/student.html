@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link href="https://fonts.googleapis.com/css?family=Oswald&display=swap" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/6.1.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/6.1.1/firebase-database.js"></script>
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3pro.css">
+    <link id="fontawesome" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <title>Student Dashboard</title>
+    <style>
+        :root{
+            --clr1:#f30;
+            --bg1:#0F111A;
+            --bg2:#ddd;
+            --bg3:#000;
+            --bg4:#090b10;
+        }
+        hr{
+            opacity:.3;
+        }
+        html,body{
+            height:100%;width:100%;
+            margin:0px;padding:0px;
+            background-color:var(--bg2);
+            font-family: 'Oswald', sans-serif;
+        }
+        a{
+            color:#09f;
+        }
+        @media print{
+            body{
+                transform:scale(1);
+                font-size:20pt;
+                padding:50px 100px;
+                background-color:#fff;
+            }
+        }
+        button{
+            border:none;
+            padding:5px 10px;
+            cursor: pointer;
+        }
+        tag{
+            background-color:#09f;
+            margin-right:10px;
+            padding:4px 10px;
+            box-shadow: 7px 0px 6px -6px #000;
+        }
+        .shadow{
+            box-shadow: 7px 0px 6px -6px #000;
+        }
+        .shadow2{
+            box-shadow: 7px 10px 6px -6px #000;
+        }
+        .navigation-bar{
+            position:fixed;
+            height:100%;
+            width:330px;
+            background-color:var(--bg1);
+            text-align:left;
+        }
+        .navigation-bar > button{
+            display:block;
+            text-align:left;
+            width:100%;
+            font-size: 11pt;
+            font-weight:bold;
+            padding:15px 20px;
+            background:transparent;
+            color:#999;
+            outline:none;
+        }
+        .navigation-bar button.active{
+            color:#fff !important;
+        }
+        .dashboard-container{
+            display:flex;
+        }
+        .dashboard-container > .navigation-placeholder{
+            width:330px;
+        }
+        .dashboard-container > .dashboard-content-container{
+            flex:1;
+        }
+        .dashboard-container > .dashboard-content-container > .dashboard-content-nav{
+            background-color:var(--bg3);
+            padding:10px;
+            box-sizing: border-box;
+            width:100%;
+        }
+        .dashboard-content{
+            padding:50px;
+        }
+        .dashboard-tile{
+            background-color:#fff;
+            box-shadow: 7px 10px 6px -6px #000;
+        }
+        .dashboard-tile-content{
+            padding:30px;
+        }
+
+        .dashboard-button{
+            background-color:#09f !important;
+            color:#fff !important;
+            font-weight:bold;
+            font-size:19pt !important;
+        }
+        .modal{
+            position:fixed;
+            top:0;left:0;bottom:0;right:0;
+            margin:auto;
+            display:inline-block;
+            width:50%;
+            top:-1500px;
+            height:400px;
+            background-color:var(--bg4);
+            padding:40px 50px 40px 100px;
+            color:#ddd;
+            transition:all .5s ease;
+        }
+        .modal.show{
+            top:15px;
+            transition:all .5s ease;
+        }
+        input{
+            display:block;
+            /* height:20px; */
+            width:100%;
+            padding:5px 7px !important;
+            box-sizing: border-box;
+        }
+        select{
+            display:block;
+            width:100%;
+            padding:5px 7px;
+        }
+        button{
+            width:100%;
+            background-color:#f30;
+            color:#fff;
+            font-weight:bold;
+            font-size:15pt;
+        }
+        .tile-buttons-container button{
+            background-color:#09f;color:#fff;
+            padding:5px 20px;
+            font-size:12pt;
+            font-weight:bold;
+            margin-right:10px;
+        }
+        table {
+            border-collapse: collapse;
+        }
+
+        table, th, td {
+            border: 1px solid black;
+        }
+        .result-table td,.result-table th{
+            padding:5px 15px;
+        }
+        .result-table th{
+            background-color:#ddd;
+        }
+        .result-table td:first-child{
+            font-weight:bold;
+        }
+        .past-reports{
+            padding:30px;
+            margin-bottom:20px;
+        }
+
+    </style>
+</head>
+<body>
+    <nav class="navigation-bar shadow">
+        <button class="dashboard-button"><span class="fa fa-user-circle"></span> Student Dashboard</button>
+        <button onclick="router.timeline();" class="active">Timeline</button>
+        <button onclick="router.profile();">Profile</button>
+        <button onclick="router.quizz();">Give Quizz</button>
+        <button>About</button>
+    </nav>
+    <div class="dashboard-container">
+        <div class="navigation-placeholder"></div>
+        <div class="dashboard-content-container">
+            <div class="dashboard-content">
+            </div>
+        </div>
+    </div>
+    <script>
+    let timeline = 
+    `
+    <input placeholder="Search tutorials.." style="padding:8px 20px;width:70%;display:inline-block;" type="search"><button style="background-color:#09f;color:#fff;padding:8px 10px;font-size:11pt;width:auto;display:inline-block;"><span class="fa fa-search"></span></button><br><br>
+    <div class="dashboard-tile">
+        <div class="dashboard-tile-content print-content">
+            <h1><b>Django Tutorials - TutorialsPoint</b></h1>
+            <hr>
+            <b>Link :</b> <a href="https://www.tutorialspoint.com/django/">https://www.tutorialspoint.com/django/</a>
+            <br><br>
+        </div>
+    </div>
+    `
+
+    let profile = 
+    `
+    <div class="dashboard-tile" style="padding:20px 20px;background-color:var(--bg1);color:#ddd;">
+        <small class="w3-opacity"><span class="fa fa-user-circle"></span> &nbsp; Student Profile</small>
+        <h2><b>John Doe</b></h2>
+        <b class="w3-opacity">SEIT - Lorem ipsum College</b><br><br>
+        <label for="interests">Interests</label>
+        <input id="interests-input" type="text"><br>
+        <div class="tags"><tag>Web Development</tag><tag>Backend</tag></div>
+        <br><br>
+        <button style="background-color:#f30;font-size:13pt;width:auto;padding:7px 20px;" onclick="updateProgress()">Update Profile</button><br><br>
+    </div>
+    `
+
+    let quizz = 
+    `
+    <div class="dashboard-tile" style="padding:20px 20px;background-color:var(--bg1);color:#ddd;">
+        <small class="w3-opacity"><span class="fa fa-question"></span> &nbsp; Quizz</small>
+        <h2><b>Python CHP2 - Operators</b></h2>
+        <label for="interests">Question soafndal fa ?</label>
+        <input class="quizz-answer" type="text"><br>
+        <label for="interests">Question soafndal fa ?</label>
+        <input class="quizz-answer" type="text"><br>
+        <button style="background-color:#f30;font-size:13pt;width:auto;padding:7px 20px;" onclick="updateProgress()">Submit Answers</button><br><br>
+    </div>
+    `
+
+    class Router{
+        constructor(){}
+        timeline(){
+            document.querySelector('.navigation-bar > .active').classList.remove('active');
+            document.querySelector('.navigation-bar >  button:nth-child(2)').classList.add('active');
+            document.querySelector('.dashboard-content').innerHTML = timeline;
+        }
+
+        profile(){
+            document.querySelector('.navigation-bar > .active').classList.remove('active');
+            document.querySelector('.navigation-bar >  button:nth-child(3)').classList.add('active');
+            document.querySelector('.dashboard-content').innerHTML = profile;
+        }
+
+        quizz(){
+            document.querySelector('.navigation-bar > .active').classList.remove('active');
+            document.querySelector('.navigation-bar >  button:nth-child(4)').classList.add('active');
+            document.querySelector('.dashboard-content').innerHTML = quizz;
+        }
+    }
+
+    var router = new Router();
+    var config = {
+        apiKey: "AIzaSyCyLq3Ez48XBcNyGJqJT-_nfU880nNWi2k",
+        authDomain: "cb-count.firebaseapp.com",
+        databaseURL: "https://cb-count.firebaseio.com",
+        storageBucket: "cb-count.appspot.com"
+    };
+    firebase.initializeApp(config);
+    
+
+  
+    </script>
+</body>
+</html>
